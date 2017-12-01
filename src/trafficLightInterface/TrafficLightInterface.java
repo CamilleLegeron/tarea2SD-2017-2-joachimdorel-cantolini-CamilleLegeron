@@ -14,9 +14,12 @@ public interface TrafficLightInterface extends Remote {
 
     void waitToken(TrafficLightTasks task) throws RemoteException;
 
-    void takeToken(Token token, TrafficLightTasks task) throws RemoteException;
+    //void takeToken(Token token, TrafficLightTasks task) throws RemoteException;
 
     void kill(TrafficLightTasks task) throws RemoteException;
 
     void print(TrafficLightTasks task) throws  RemoteException;
-}
+
+    void connectTrafficLightsClients(int id, int n) throws  RemoteException;
+
+    }

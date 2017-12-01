@@ -1,6 +1,6 @@
 package trafficLight;
 
-import token.Token;
+//import token.Token;
 import trafficLightInterface.TrafficLightTasks;
 
 import java.io.Serializable;
@@ -88,9 +88,9 @@ public class TrafficLight implements TrafficLightTasks, Serializable{
     }
 
     //Método que toma posesión del token en el proceso.
-    public void takeToken(Token token){
+    /*public void takeToken(Token token){
         //TODO
-    }
+    }*/
 
     //Método que mata el proceso remoto. Debe usar este método para detener el algoritmo de S-K una vez que el token haya pasado por todos los nodos del sistema.
     public void kill(){

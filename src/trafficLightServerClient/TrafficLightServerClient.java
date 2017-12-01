@@ -1,21 +1,23 @@
-package trafficLightEngine;
+package trafficLightServerClient;
 
-import token.Token;
-import trafficLightInterface.TrafficLightTasks;
 import trafficLightInterface.TrafficLightInterface;
+import trafficLightInterface.TrafficLightTasks;
 
 import java.net.MalformedURLException;
 import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
 
-/**
- * Created by user on 27/11/2017.
- */
-public class TrafficLightEngine extends UnicastRemoteObject implements TrafficLightInterface {
+public class TrafficLightServerClient extends UnicastRemoteObject implements TrafficLightInterface{
 
-    public TrafficLightEngine() throws RemoteException {
+    private String name;
+    ArrayList<TrafficLightInterface> listNodeClient = new ArrayList<TrafficLightInterface>();
+
+    public TrafficLightServerClient(String name) throws RemoteException {
         super();
+        this.name=name;
     }
 
 
@@ -31,11 +33,11 @@ public class TrafficLightEngine extends UnicastRemoteObject implements TrafficLi
         task.waitToken();
     }
 
-    @Override
+    /*@Override
     public void takeToken(Token token, TrafficLightTasks task) throws RemoteException {
         System.out.println("remote takeToken call");
         task.takeToken(token);
-    }
+    }*/
 
     @Override
     public void kill(TrafficLightTasks task) throws RemoteException {
@@ -49,16 +51,34 @@ public class TrafficLightEngine extends UnicastRemoteObject implements TrafficLi
         task.print();
     }
 
+    public void connectTrafficLightsClients(int id, int n){
+        for(int i=0;i<n;i++){
+            if(i!=id){
+                try {
+                    listNodeClient.add((TrafficLightInterface) Naming.lookup("node"+i));
+                    System.out.println("Node "+id+" connected to the client node"+i);
+                } catch (NotBoundException | MalformedURLException | RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     public static void main(String args[]){
+        int id = Integer.parseInt(args[0]);
+        String name = "node" + id;
+        int n=Integer.parseInt(args[1]);
         if (System.getSecurityManager() == null) {
             System.setSecurityManager(new SecurityManager());
         }
         try {
-            TrafficLightInterface engine = new TrafficLightEngine();
-            Naming.rebind("TrafficLightInterface", engine);
-            System.out.println("Engine bound.");
+            TrafficLightInterface node = new trafficLightServerClient.TrafficLightServerClient(name);
+            Naming.rebind(name, node);
+            System.out.println(name +" bound.");
+
         } catch (RemoteException | MalformedURLException e) {
             e.printStackTrace();
         }
+
     }
 }
