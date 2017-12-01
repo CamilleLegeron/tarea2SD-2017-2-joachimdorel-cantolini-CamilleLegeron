@@ -1,7 +1,7 @@
-package engine;
+package trafficLightEngine;
 
 import token.Token;
-import trafficLightInterface.Tasks;
+import trafficLightInterface.TrafficLightTasks;
 import trafficLightInterface.TrafficLightInterface;
 
 import java.net.MalformedURLException;
@@ -20,31 +20,31 @@ public class TrafficLightEngine extends UnicastRemoteObject implements TrafficLi
 
 
     @Override
-    public void request(int id, int seq, Tasks task) throws RemoteException {
+    public void request(int id, int seq, TrafficLightTasks task) throws RemoteException {
         System.out.println("remote request call");
         task.request(id, seq);
     }
 
     @Override
-    public void waitToken(Tasks task) throws RemoteException {
+    public void waitToken(TrafficLightTasks task) throws RemoteException {
         System.out.println("remote waitToken call");
         task.waitToken();
     }
 
     @Override
-    public void takeToken(Token token, Tasks task) throws RemoteException {
+    public void takeToken(Token token, TrafficLightTasks task) throws RemoteException {
         System.out.println("remote takeToken call");
         task.takeToken(token);
     }
 
     @Override
-    public void kill(Tasks task) throws RemoteException {
+    public void kill(TrafficLightTasks task) throws RemoteException {
         System.out.println("remote kill call");
         task.kill();
     }
 
     @Override
-    public void print(Tasks task) throws RemoteException {
+    public void print(TrafficLightTasks task) throws RemoteException {
         System.out.println("remote print call");
         task.print();
     }

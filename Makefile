@@ -1,4 +1,4 @@
-all: out trafficLightInterface trafficLight engine client
+all: out trafficLightInterface trafficLight trafficLightEngine client
 
 out:
 	mkdir out
@@ -14,9 +14,9 @@ trafficLight:
 	cd out && jar cvf trafficLight.jar trafficLight/*.class
 	rm -rf out/trafficLight
 
-engine:
-	cd out && javac -cp trafficLightInterface.jar engine/*.java
-	rm -f out/engine/*.java
+trafficLightEngine:
+	cd out && javac -cp trafficLightInterface.jar trafficLightEngine/*.java
+	rm -f out/trafficLightEngine/*.java
 
 client:
 	cd out && javac -cp trafficLightInterface.jar:trafficLight.jar client/*.java
@@ -25,10 +25,10 @@ client:
 run-rmiregistry:
 	CLASSPATH=out/trafficLightInterface.jar rmiregistry
 
-run-engine:
+run-trafficLightEngine:
 	cd out && java -cp .:trafficLightInterface.jar:trafficLight.jar\
 	    -Djava.security.policy=security.policy\
-	    engine.TrafficLightEngine
+	    trafficLightEngine.TrafficLightEngine
 
 run-client:
 	cd out && java -cp .:trafficLightInterface.jar:trafficLight.jar\

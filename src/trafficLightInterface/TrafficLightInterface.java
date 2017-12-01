@@ -10,13 +10,13 @@ import java.rmi.RemoteException;
  */
 public interface TrafficLightInterface extends Remote {
     //TODO : Not sure at all
-    void request(int id, int seq, Tasks task) throws RemoteException;
+    void request(int id, int seq, TrafficLightTasks task) throws RemoteException;
 
-    void waitToken(Tasks task) throws RemoteException;
+    void waitToken(TrafficLightTasks task) throws RemoteException;
 
-    void takeToken(Token token, Tasks task) throws RemoteException;
+    void takeToken(Token token, TrafficLightTasks task) throws RemoteException;
 
-    void kill(Tasks task) throws RemoteException;
+    void kill(TrafficLightTasks task) throws RemoteException;
 
-    void print(Tasks task) throws  RemoteException;
+    void print(TrafficLightTasks task) throws  RemoteException;
 }

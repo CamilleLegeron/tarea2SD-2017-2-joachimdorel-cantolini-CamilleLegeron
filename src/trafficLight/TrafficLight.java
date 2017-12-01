@@ -1,7 +1,7 @@
 package trafficLight;
 
 import token.Token;
-import trafficLightInterface.Tasks;
+import trafficLightInterface.TrafficLightTasks;
 
 import java.io.Serializable;
 
@@ -11,15 +11,15 @@ import java.io.Serializable;
 
 // TODO : CAUTION : all functions on this class have to be declared in the TrafficLightInterface
 
-public class TrafficLight implements Tasks, Serializable{
-    String id;
-    String[] colors;
-    String state;
-    Boolean hasTheToken;
-    int RN[];
+public class TrafficLight implements TrafficLightTasks, Serializable{
+    private String id;
+    private String[] colors;
+    private String state;
+    private Boolean hasTheToken;
+    private int RN[];
 
     /**
-     *
+     * Constructor
      * @param id of the present trafficLight.TrafficLight
      * @param n the total number of trafficLight.TrafficLight
      */

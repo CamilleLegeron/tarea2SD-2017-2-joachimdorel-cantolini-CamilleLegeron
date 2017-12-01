@@ -7,8 +7,9 @@ import java.util.Queue;
  * Created by user on 27/11/2017.
  */
 public class Token {
-    int[] LN;
-    Queue<Integer> queue;
+    static int[] LN;
+    static Queue<Integer> queue;
+
     public Token(int size){
         LN = new int[size];
         for(int i=0; i<size;i++){
@@ -17,19 +18,19 @@ public class Token {
         queue = new LinkedList<Integer>();
     }
 
-    public void setLN(int[] LN) {
-        this.LN = LN;
+    public static void incrementLN(int i) {
+        LN[i]++;
     }
 
-    public void setQueue(Queue<Integer> queue) {
-        this.queue = queue;
+    public static void addQueue(int process) {
+        queue.add(process);
     }
 
-    public int[] getLN() {
-        return LN;
+    public static void removeFirstQueue() {
+        queue.poll();
     }
 
-    public Queue<Integer> getQueue(){
-        return  queue;
-    }
+    public static int getOneLN(int i) { return LN[i]; }
+
+    public static int getFirstQueue() {return queue.element(); }
 }
