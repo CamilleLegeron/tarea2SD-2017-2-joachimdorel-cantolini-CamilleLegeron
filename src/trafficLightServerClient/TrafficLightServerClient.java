@@ -1,5 +1,8 @@
 package trafficLightServerClient;
 
+import token.Token;
+import tokenInterface.TokenInterface;
+import trafficLight.TrafficLight;
 import trafficLightInterface.TrafficLightInterface;
 import trafficLightInterface.TrafficLightTasks;
 
@@ -75,8 +78,16 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
             TrafficLightInterface node = new trafficLightServerClient.TrafficLightServerClient(name);
             Naming.rebind(name, node);
             System.out.println(name +" bound.");
+            TokenInterface interfaceToken;
+            if(Integer.parseInt(args[2])==1){
+                System.out.println("je veux me connecter au token parce que j'ai le bearer");
+                interfaceToken = (TokenInterface) Naming.lookup("token");
+                Token tok = new Token(n);
+            }
 
         } catch (RemoteException | MalformedURLException e) {
+            e.printStackTrace();
+        } catch (NotBoundException e) {
             e.printStackTrace();
         }
 

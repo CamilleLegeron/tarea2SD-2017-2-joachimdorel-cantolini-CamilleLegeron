@@ -52,7 +52,7 @@ public class TokenEngine extends UnicastRemoteObject implements TokenInterface{
         }
         try {
             TokenInterface engine = new TokenEngine();
-            Naming.rebind("TokenInterface", engine);
+            Naming.rebind("token", engine);
             System.out.println("Engine bound.");
         } catch (RemoteException | MalformedURLException e) {
             e.printStackTrace();

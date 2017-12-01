@@ -10,9 +10,9 @@ public class Token {
     static int[] LN;
     static Queue<Integer> queue;
 
-    public Token(int size){
-        LN = new int[size];
-        for(int i=0; i<size;i++){
+    public Token(int n){
+        LN = new int[n];
+        for(int i=0; i<n;i++){
             LN[i] = 0;
         }
         queue = new LinkedList<Integer>();
