@@ -2,7 +2,6 @@ package trafficLightServerClient;
 
 import token.Token;
 import tokenInterface.TokenInterface;
-import trafficLight.TrafficLight;
 import trafficLightInterface.TrafficLightInterface;
 import trafficLightInterface.TrafficLightTasks;
 

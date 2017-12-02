@@ -1,7 +1,5 @@
 package trafficLightInterface;
 
-import token.Token;
-
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
