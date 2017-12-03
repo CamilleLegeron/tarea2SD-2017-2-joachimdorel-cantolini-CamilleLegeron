@@ -3,12 +3,11 @@ package token;
 import java.util.LinkedList;
 import java.util.Queue;
 
-/**
- * Created by user on 27/11/2017.
- */
+
 public class Token {
-    static int[] LN;
-    static Queue<Integer> queue;
+    private int[] LN;
+    private Queue<Integer> queue;
+//    private final static Token token = new Token(5);
 
     public Token(int n){
         LN = new int[n];
@@ -18,19 +17,21 @@ public class Token {
         queue = new LinkedList<Integer>();
     }
 
-    public static void incrementLN(int i) {
+//    public static Token getToken(){return token;}
+
+    public void incrementLN(int i) {
         LN[i]++;
     }
 
-    public static void addQueue(int process) {
+    public void addQueue(int process) {
         queue.add(process);
     }
 
-    public static void removeFirstQueue() {
+    public void removeFirstQueue() {
         queue.poll();
     }
 
-    public static int getOneLN(int i) { return LN[i]; }
+    public int getOneLN(int i) { return LN[i]; }
 
-    public static int getFirstQueue() {return queue.element(); }
+    public int getFirstQueue() {return queue.element(); }
 }

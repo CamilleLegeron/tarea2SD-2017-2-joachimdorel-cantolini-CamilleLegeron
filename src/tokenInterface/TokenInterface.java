@@ -1,5 +1,7 @@
 package tokenInterface;
 
+import token.Token;
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 

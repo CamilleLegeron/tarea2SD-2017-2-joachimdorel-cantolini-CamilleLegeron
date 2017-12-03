@@ -1,5 +1,7 @@
 package tokenInterface;
 
+import token.Token;
+
 /**
  * Created by user on 30/11/2017.
  */
