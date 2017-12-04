@@ -46,7 +46,6 @@ run-tokenEngine:
 	    -Djava.security.policy=security.policy\
 	    tokenEngine.TokenEngine
 
-
 run-client:
 	cd out && java -cp .:trafficLightInterface.jar:token.jar:tokenInterface.jar\
 	    -Djava.security.policy=security.policy\
