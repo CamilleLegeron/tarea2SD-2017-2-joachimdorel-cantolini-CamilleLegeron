@@ -17,9 +17,11 @@ import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 public class TrafficLightServerClient extends UnicastRemoteObject implements TrafficLightInterface{
-    // G : Green --> idle
-    // Y : Yellow --> waiting
-    // R : Red --> critical section
+    /**
+     * G corresponds to GREEN
+     * Y corresponds to YELLOW
+     * R corresponds to RED
+     */
     private static final String[] COLORS = {"G", "Y", "R"};
 
     private int id;
@@ -32,6 +34,14 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
     private TokenInterface tokenInterface;
     private int RN[];
 
+    /**
+     * Constructor of the TrafficLightServerClient
+     * @param id of the semaphore
+     * @param name of the semaphore
+     * @param n of the semaphore to generate the binding in the RMI
+     * @param bearer if the semaphore is holding the token or no
+     * @throws RemoteException in order to avoid remote call fail
+     */
     public TrafficLightServerClient(int id, String name, int n, boolean bearer) throws RemoteException {
         super();
         this.id = id;
@@ -47,8 +57,11 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
 
     /**
      * Method that registers a remote process request
-     * @param remoteID : id of the remote process
-     * @param seq : number of the sequence
+     * @param remoteID is id of the remote process
+     * @param seq corresponds to the number of the sequence
+     * @throws RemoteException in order to avoid remote call fail
+     * @throws MalformedURLException indicates that a malformed URL has occurred
+     * @throws NotBoundException throwns if an attempt is made to lookup or unbind in the registry a name that has no associated binding
      */
     @Override
     public void request(int remoteID, int seq) throws RemoteException, MalformedURLException, NotBoundException {
@@ -81,6 +94,7 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
 
     /**
      * Method that tells a remote process to wait for the token to perform the critical section
+     * @throws RemoteException in order to avoid remote call fail
      */
     @Override
     public void waitToken() throws RemoteException {
@@ -92,7 +106,10 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
 
     /**
      * Method that takes possession of the token in the process.
-     * @param token : the token to take
+     * @param token took
+     * @throws RemoteException in order to avoid remote call fail
+     * @throws MalformedURLException indicates that a malformed URL has occurred
+     * @throws NotBoundException throwns if an attempt is made to lookup or unbind in the registry a name that has no associated binding
      */
     @Override
     public void takeToken(Token token) throws RemoteException, MalformedURLException, NotBoundException {
@@ -105,6 +122,9 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
     /**
      * Method that kills the remote process.
      * Stop the S-K algorithm once the token has passed through all the nodes in the system.
+     * @throws RemoteException in order to avoid remote call fail
+     * @throws MalformedURLException indicates that a malformed URL has occurred
+     * @throws NotBoundException throwns if an attempt is made to lookup or unbind in the registry a name that has no associated binding
      */
     @Override
     public void kill() throws RemoteException, MalformedURLException, NotBoundException {
@@ -113,6 +133,10 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
         //TODO
     }
 
+    /**
+     * Print the current state of the semaphore
+     * @throws RemoteException in order to avoid remote call fail
+     */
     @Override
     public void print() throws RemoteException {
         System.out.println("----Traffic Light " + id + "-----");
@@ -138,6 +162,7 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
 
     /**
      * Method that connect this TrafficLight server to all other remote TrafficLights as a client
+     * @throws RemoteException in order to avoid remote call fail
      */
     @Override
     public void connectTrafficLightsClients() throws RemoteException {
@@ -155,6 +180,9 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
 
     /**
      * Function that goes in and out the Critical Section
+     * @throws RemoteException in order to avoid remote call fail
+     * @throws MalformedURLException indicates that a malformed URL has occurred
+     * @throws NotBoundException throwns if an attempt is made to lookup or unbind in the registry a name that has no associated binding
      */
     private void inOutCriticalSection() throws RemoteException, MalformedURLException, NotBoundException {
         System.out.println("------I have the token, I enter in my critical section------");
@@ -184,6 +212,11 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
         }
     }
 
+    /**
+     * Method informing that the algo is over
+     * @return a boolean giving the information if the Suzuki-Kasami algorithm is over
+     * @throws RemoteException in order to avoid remote call fail
+     */
     private boolean checkEnd() throws RemoteException {
         for(int i=0;i<n;i++){
             if(tokenInterface.getOneLN(i,token)==0){
@@ -196,6 +229,9 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
     /**
      * Function that gives the token to the first node in the queue and set its own token to null
      * In this way, we take take of the mutual exclusion
+     * @throws RemoteException in order to avoid remote call fail
+     * @throws MalformedURLException indicates that a malformed URL has occurred
+     * @throws NotBoundException throwns if an attempt is made to lookup or unbind in the registry a name that has no associated binding
      */
     private void giveToken() throws RemoteException, MalformedURLException, NotBoundException {
         Integer nextNode = tokenInterface.getFirstQueue(this.token);
@@ -210,6 +246,10 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
     }
 
 
+    /**
+     * Main method of the TrafficLightServerClient
+     * @param args
+     */
     public static void main(String args[]){
         if (System.getSecurityManager() == null) {
             System.setSecurityManager(new SecurityManager());
@@ -232,17 +272,20 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
                 token = new Token(n);
             }
 
-
-
             TrafficLightServerClient nodeServer = (TrafficLightServerClient) node;
             nodeServer.suzukiKasami(initialDelay, interfaceToken, token);
-
-
         } catch (RemoteException | MalformedURLException | NotBoundException e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * Suzuki-Kasami algorithm
+     * @param initialDelay until the semaphore will enter into a critic section
+     * @param tokenInterface to access to the token methods
+     * @param token to access the token
+     * @throws RemoteException in order to avoid remote call fail
+     */
     private void suzukiKasami(int initialDelay, TokenInterface tokenInterface, Token token) throws  RemoteException{
         System.out.println();
         System.out.println("Beginning of the Suzuki Kasami function");
@@ -281,7 +324,7 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
             }
         });
         timer.setRepeats(false); // Only execute once
-        timer.start(); // Go go go!
+        timer.start();
         System.out.println("Waiting the initial delay ("+initialDelay+"ms) before asking for the token...");
     }
 }
