@@ -2,6 +2,8 @@ package trafficLightInterface;
 
 import token.Token;
 
+import java.net.MalformedURLException;
+import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
@@ -10,13 +12,13 @@ import java.rmi.RemoteException;
  */
 public interface TrafficLightInterface extends Remote {
     //TODO : Not sure at all
-    void request(int id, int seq) throws RemoteException;
+    void request(int id, int seq) throws RemoteException, MalformedURLException, NotBoundException;
 
     void waitToken() throws RemoteException;
 
-    void takeToken(Token token) throws RemoteException;
+    void takeToken(Token token) throws RemoteException, MalformedURLException, NotBoundException;
 
-    void kill() throws RemoteException;
+    void kill() throws RemoteException, MalformedURLException, NotBoundException;
 
     void print() throws  RemoteException;
 

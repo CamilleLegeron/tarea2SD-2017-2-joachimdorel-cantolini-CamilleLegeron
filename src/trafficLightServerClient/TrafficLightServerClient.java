@@ -51,7 +51,7 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
      * @param seq : number of the sequence
      */
     @Override
-    public void request(int remoteID, int seq) throws RemoteException {
+    public void request(int remoteID, int seq) throws RemoteException, MalformedURLException, NotBoundException {
         System.out.println("Received request : (" + remoteID +","+ seq +")");
         if(remoteID == id && bearer && state.equals(COLORS[0])){
             if(tokenInterface.getOneLN(id, token)<RN[id]){
@@ -95,7 +95,7 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
      * @param token : the token to take
      */
     @Override
-    public void takeToken(Token token) throws RemoteException {
+    public void takeToken(Token token) throws RemoteException, MalformedURLException, NotBoundException {
         System.out.println("remote takeToken call");
         this.token = token;
         bearer = true;
@@ -107,8 +107,9 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
      * Stop the S-K algorithm once the token has passed through all the nodes in the system.
      */
     @Override
-    public void kill() throws RemoteException {
+    public void kill() throws RemoteException, MalformedURLException, NotBoundException {
         System.out.println("remote kill call");
+        Naming.unbind(name);
         //TODO
     }
 
@@ -155,7 +156,7 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
     /**
      * Function that goes in and out the Critical Section
      */
-    private void inOutCriticalSection() throws RemoteException {
+    private void inOutCriticalSection() throws RemoteException, MalformedURLException, NotBoundException {
         System.out.println("------I have the token, I enter in my critical section------");
         state = COLORS[2];
         print();
@@ -163,22 +164,40 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
         state = COLORS[0];
         print();
         token = tokenInterface.incrementLN(id, token);
+        System.out.println("I incremented the token's LN");
         for(int i=0; i<n; i++){
             if(RN[i] == tokenInterface.getOneLN(i,token)){
                 tokenInterface.addQueue(i, token);
             }
         }
-        System.out.println("I incremented the token's LN");
         tokenInterface.print(token);
         System.out.println("I asked the token to print itself");
-        giveToken();
+        if(checkEnd()){
+            //kill
+            for(int i =0;i<n;i++){
+                if(i!=id)
+                    mapNodeClient.get(i).kill();
+            }
+            kill();
+        }else {
+            giveToken();
+        }
+    }
+
+    private boolean checkEnd() throws RemoteException {
+        for(int i=0;i<n;i++){
+            if(tokenInterface.getOneLN(i,token)==0){
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
      * Function that gives the token to the first node in the queue and set its own token to null
      * In this way, we take take of the mutual exclusion
      */
-    private void giveToken() throws  RemoteException {
+    private void giveToken() throws RemoteException, MalformedURLException, NotBoundException {
         Integer nextNode = tokenInterface.getFirstQueue(this.token);
         System.out.println("In giveToken function : " + nextNode);
         tokenInterface.print(token);
@@ -242,11 +261,19 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
                             mapNodeClient.get(i).request(id, RN[id]);
                         } catch (RemoteException e) {
                             e.printStackTrace();
+                        } catch (NotBoundException e) {
+                            e.printStackTrace();
+                        } catch (MalformedURLException e) {
+                            e.printStackTrace();
                         }
                     }else{
                         try {
                             request(id,RN[id]);
                         } catch (RemoteException e) {
+                            e.printStackTrace();
+                        } catch (NotBoundException e) {
+                            e.printStackTrace();
+                        } catch (MalformedURLException e) {
                             e.printStackTrace();
                         }
                     }
