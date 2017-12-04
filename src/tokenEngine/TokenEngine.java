@@ -26,7 +26,7 @@ public class TokenEngine extends UnicastRemoteObject implements TokenInterface{
      * @throws RemoteException in order to avoid remote call fail
      */
     public <T> T incrementLN(int i, TokenTasks<T> task) throws RemoteException {
-        System.out.println("remote incrementLN");
+        System.out.println("remote incrementLN call");
         return task.incrementLN(i);
     }
 
@@ -39,7 +39,7 @@ public class TokenEngine extends UnicastRemoteObject implements TokenInterface{
      * @throws RemoteException in order to avoid remote call fail
      */
     public <T> T addQueue(int process, TokenTasks<T> task) throws RemoteException  {
-        System.out.println("remote addQueue");
+        System.out.println("remote addQueue call");
         return task.addQueue(process);
     }
 
@@ -51,7 +51,7 @@ public class TokenEngine extends UnicastRemoteObject implements TokenInterface{
      * @throws RemoteException in order to avoid remote call fail
      */
     public <T> T removeFirstQueue(TokenTasks<T> task) throws RemoteException {
-        System.out.println("remote removeLastQueue");
+        System.out.println("remote removeLastQueue call");
         return task.removeFirstQueue();
     }
 
@@ -64,7 +64,7 @@ public class TokenEngine extends UnicastRemoteObject implements TokenInterface{
      * @throws RemoteException in order to avoid remote call fail
      */
     public <T> int getOneLN(int i, TokenTasks<T> task) throws RemoteException {
-        System.out.println("remote getOneLN");
+        System.out.println("remote getOneLN call");
         return task.getOneLN(i);
     }
 
@@ -76,7 +76,7 @@ public class TokenEngine extends UnicastRemoteObject implements TokenInterface{
      * @throws RemoteException in order to avoid remote call fail
      */
     public <T> int getFirstQueue(TokenTasks<T> task) throws RemoteException {
-        System.out.println("remote getFirstQueue");
+        System.out.println("remote getFirstQueue call");
         return task.getFirstQueue();
     }
 

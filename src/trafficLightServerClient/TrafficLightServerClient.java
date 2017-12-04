@@ -12,9 +12,7 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
 
 public class TrafficLightServerClient extends UnicastRemoteObject implements TrafficLightInterface{
     /**
@@ -65,12 +63,14 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
      */
     @Override
     public void request(int remoteID, int seq) throws RemoteException, MalformedURLException, NotBoundException {
-        System.out.println("Received request : (" + remoteID +","+ seq +")");
         if(remoteID == id && bearer && state.equals(COLORS[0])){
             if(tokenInterface.getOneLN(id, token)<RN[id]){
                 inOutCriticalSection();
             }
+            return;
         }
+        System.out.println("");
+        System.out.println("Received request : (" + remoteID +","+ seq +")");
         if(RN[remoteID]<seq){
             System.out.println("The request of the remote process is accepted");
             RN[remoteID] = seq;
@@ -83,7 +83,7 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
                 tokenInterface.print(token);
                 giveToken();
             } else if (bearer && state.equals(COLORS[2])) {
-                System.out.println("I am in critical section");
+                System.out.println("I am in critical section, the remote process has to wait");
                 mapNodeClient.get(remoteID).waitToken();
             }
         } else {
@@ -116,6 +116,7 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
         System.out.println("remote takeToken call");
         this.token = token;
         bearer = true;
+        System.out.println("I took the token");
         inOutCriticalSection();
     }
 
@@ -130,7 +131,6 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
     public void kill() throws RemoteException, MalformedURLException, NotBoundException {
         System.out.println("remote kill call");
         Naming.unbind(name);
-        //TODO
     }
 
     /**
@@ -140,7 +140,7 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
     @Override
     public void print() throws RemoteException {
         System.out.println("----Traffic Light " + id + "-----");
-        System.out.println("-   -");
+        System.out.println("-- --");
         for (int i = 0; i<3; i++) {
             if(state.equals(COLORS[i])){
                 System.out.println("| " + COLORS[i] + " |");
@@ -148,14 +148,16 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
                 System.out.println("|   |");
             }
         }
-        System.out.println("-   -");
+        System.out.println("-- --");
         System.out.print("RN = [ ");
         for (int i=0;i<n;i++){
             System.out.print(" "+ RN[i]+ " ");
         }
         System.out.println(" ]");
         if(bearer){
-            System.out.println("I have the token");
+            System.out.println("bearer = true");
+        } else {
+            System.out.println("bearer = false");
         }
         System.out.println("");
     }
@@ -185,16 +187,19 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
      * @throws NotBoundException throwns if an attempt is made to lookup or unbind in the registry a name that has no associated binding
      */
     private void inOutCriticalSection() throws RemoteException, MalformedURLException, NotBoundException {
+        System.out.println("");
         System.out.println("------I have the token, I enter in my critical section------");
         state = COLORS[2];
         print();
         System.out.println("--------------I go out of my critical section---------------");
         state = COLORS[0];
         print();
+        tokenInterface.print(token);
+        System.out.println("I increment the token's LN["+id+"]");
         token = tokenInterface.incrementLN(id, token);
-        System.out.println("I incremented the token's LN");
+        System.out.println("I check all RN[i] == LN[i]+1, to add processes which want to enter in critical section in the queue of the token ");
         for(int i=0; i<n; i++){
-            if(RN[i] == tokenInterface.getOneLN(i,token)){
+            if(RN[i] == tokenInterface.getOneLN(i,token)+1){
                 tokenInterface.addQueue(i, token);
             }
         }
@@ -223,6 +228,7 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
                 return false;
             }
         }
+        System.out.println("All processes have entered once in critical section. The algorithm has finished");
         return true;
     }
 
@@ -235,13 +241,17 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
      */
     private void giveToken() throws RemoteException, MalformedURLException, NotBoundException {
         Integer nextNode = tokenInterface.getFirstQueue(this.token);
-        System.out.println("In giveToken function : " + nextNode);
         tokenInterface.print(token);
         if(nextNode != -1) {
+            System.out.println("");
+            System.out.println("Call the takeToken function of the remote process " + nextNode);
             this.token = tokenInterface.removeFirstQueue(this.token);
             mapNodeClient.get(nextNode).takeToken(this.token);
             this.token = null;
             bearer = false;
+            print();
+        } else {
+            System.out.println("There isn't process in the queue of the token");
         }
     }
 
@@ -268,7 +278,7 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
             TokenInterface interfaceToken = (TokenInterface) Naming.lookup("token");
             Token token = null;
             if(bearer){
-                System.out.println("je veux me connecter au token parce que j'ai le bearer");
+                System.out.println("I have the bearer, only me instantiates the token");
                 token = new Token(n);
             }
 
@@ -302,21 +312,13 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
                     if(i != id){
                         try {
                             mapNodeClient.get(i).request(id, RN[id]);
-                        } catch (RemoteException e) {
-                            e.printStackTrace();
-                        } catch (NotBoundException e) {
-                            e.printStackTrace();
-                        } catch (MalformedURLException e) {
+                        } catch (RemoteException | NotBoundException | MalformedURLException e) {
                             e.printStackTrace();
                         }
                     }else{
                         try {
                             request(id,RN[id]);
-                        } catch (RemoteException e) {
-                            e.printStackTrace();
-                        } catch (NotBoundException e) {
-                            e.printStackTrace();
-                        } catch (MalformedURLException e) {
+                        } catch (RemoteException | NotBoundException | MalformedURLException e) {
                             e.printStackTrace();
                         }
                     }
