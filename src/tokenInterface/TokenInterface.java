@@ -1,7 +1,5 @@
 package tokenInterface;
 
-import token.Token;
-
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
@@ -9,13 +7,15 @@ import java.rmi.RemoteException;
  * Created by user on 30/11/2017.
  */
 public interface TokenInterface extends Remote {
-    void incrementLN(int i, TokenTasks task) throws RemoteException;
+    <T> T incrementLN(int i, TokenTasks<T> task) throws RemoteException;
 
-    void addQueue(int process, TokenTasks task) throws RemoteException;
+    <T> T addQueue(int process, TokenTasks<T> task) throws RemoteException;
 
-    void removeFirstQueue(TokenTasks task) throws RemoteException;
+    <T> T removeFirstQueue(TokenTasks<T> task) throws RemoteException;
 
-    int getOneLN(int i, TokenTasks task) throws RemoteException;
+    <T> int getOneLN(int i, TokenTasks<T> task) throws RemoteException;
 
-    Integer getFirstQueue(TokenTasks task) throws  RemoteException;
+    <T> int getFirstQueue(TokenTasks<T> task) throws  RemoteException;
+
+    <T> void print(TokenTasks<T> task) throws  RemoteException;
 }

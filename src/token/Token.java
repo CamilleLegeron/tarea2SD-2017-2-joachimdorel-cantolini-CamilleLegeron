@@ -7,10 +7,9 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 
-public class Token implements TokenTasks, Serializable{
+public class Token implements TokenTasks<Token>, Serializable{
     private int[] LN;
     private Queue<Integer> queue;
-//    private final static Token token = new Token(5);
 
     public Token(int n){
         LN = new int[n];
@@ -20,21 +19,34 @@ public class Token implements TokenTasks, Serializable{
         queue = new LinkedList<Integer>();
     }
 
-//    public static Token getToken(){return token;}
 
-    public void incrementLN(int i) {
+    public Token incrementLN(int i) {
         LN[i]++;
+        return this;
     }
 
-    public void addQueue(int process) {
+    public Token addQueue(int process) {
         queue.add(process);
+        return this;
     }
 
-    public void removeFirstQueue() {
+    public Token removeFirstQueue() {
         queue.poll();
+        return this;
     }
 
     public int getOneLN(int i) { return LN[i]; }
 
-    public Integer getFirstQueue() {return queue.peek(); }
+    public int getFirstQueue() {return queue.peek(); }
+
+    public void print() {
+        System.out.println("");
+        System.out.print("LN = [ ");
+        for (int aLN : LN) {
+            System.out.print(" " + aLN + " ");
+        }
+        System.out.println(" ]");
+        System.out.println("Queue = " + queue.toString());
+
+    }
 }

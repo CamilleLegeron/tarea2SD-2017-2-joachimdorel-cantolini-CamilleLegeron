@@ -60,7 +60,9 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
                 System.out.println("I have the bearer");
             }
             if(bearer && state.equals(COLORS[0])){
-                tokenInterface.addQueue(remoteID, token);
+                tokenInterface.print(token);
+                token = tokenInterface.addQueue(remoteID, token);
+                tokenInterface.print(token);
                 giveToken();
             } else if (bearer && state.equals(COLORS[2])) {
                 System.out.println("I am in critical section");
@@ -154,7 +156,11 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
         System.out.println("--------------I go out of my critical section---------------");
         state = COLORS[0];
         print();
-        tokenInterface.incrementLN(id, token);
+        System.out.println(tokenInterface.getOneLN(id, token));
+        token = tokenInterface.incrementLN(id, token);
+        System.out.println("I incremented the token's LN");
+        tokenInterface.print(token);
+        System.out.println("I asked the token to print itself");
         giveToken();
     }
 
@@ -164,8 +170,10 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
      */
     private void giveToken() throws  RemoteException {
         Integer nextNode = tokenInterface.getFirstQueue(this.token);
+        System.out.println("In giveToken function : " + nextNode);
+        tokenInterface.print(token);
         if(nextNode != null) {
-            tokenInterface.removeFirstQueue(this.token);
+            this.token = tokenInterface.removeFirstQueue(this.token);
             mapNodeClient.get(nextNode).takeToken(this.token);
             this.token = null;
             bearer = false;
@@ -231,6 +239,7 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
                 }
                 if(bearer){
                     try {
+
                         inOutCriticalSection();
                     } catch (RemoteException e) {
                         e.printStackTrace();

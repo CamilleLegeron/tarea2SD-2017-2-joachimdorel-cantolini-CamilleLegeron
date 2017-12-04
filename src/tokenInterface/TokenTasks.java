@@ -3,10 +3,11 @@ package tokenInterface;
 /**
  * Created by user on 30/11/2017.
  */
-public interface TokenTasks {
-    void incrementLN(int i);
-    void addQueue(int process);
-    void removeFirstQueue();
+public interface TokenTasks<T> {
+    T incrementLN(int i);
+    T addQueue(int process);
+    T removeFirstQueue();
     int getOneLN(int i);
-    Integer getFirstQueue();
+    int getFirstQueue();
+    void print();
 }

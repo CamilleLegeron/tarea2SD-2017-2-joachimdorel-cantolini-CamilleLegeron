@@ -17,33 +17,38 @@ public class TokenEngine extends UnicastRemoteObject implements TokenInterface{
     }
 
     @Override
-    public void incrementLN(int i, TokenTasks task) throws RemoteException {
+    public <T> T incrementLN(int i, TokenTasks<T> task) throws RemoteException {
         System.out.println("remote incrementLN");
-        task.incrementLN(i);
+        return task.incrementLN(i);
     }
 
     @Override
-    public void addQueue(int process, TokenTasks task) throws RemoteException  {
+    public <T> T addQueue(int process, TokenTasks<T> task) throws RemoteException  {
         System.out.println("remote addQueue");
-        task.addQueue(process);
+        return task.addQueue(process);
     }
 
     @Override
-    public void removeFirstQueue(TokenTasks task) throws RemoteException {
+    public <T> T removeFirstQueue(TokenTasks<T> task) throws RemoteException {
         System.out.println("remote removeLastQueue");
-        task.removeFirstQueue();
+        return task.removeFirstQueue();
     }
 
     @Override
-    public int getOneLN(int i, TokenTasks task) throws RemoteException {
+    public <T> int getOneLN(int i, TokenTasks<T> task) throws RemoteException {
         System.out.println("remote getOneLN");
         return task.getOneLN(i);
     }
 
     @Override
-    public Integer getFirstQueue(TokenTasks task) throws RemoteException {
+    public <T> int getFirstQueue(TokenTasks<T> task) throws RemoteException {
         System.out.println("remote getFirstQueue");
         return task.getFirstQueue();
+    }
+
+    @Override
+    public <T> void print(TokenTasks<T> task) throws  RemoteException {
+        task.print();
     }
 
     public static void main(String args[]){
