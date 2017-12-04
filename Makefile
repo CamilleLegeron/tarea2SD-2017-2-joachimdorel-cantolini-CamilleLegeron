@@ -48,7 +48,7 @@ run-tokenEngine:
 
 
 run-client:
-	cd out && java -cp .:trafficLightInterface.jar\
+	cd out && java -cp .:trafficLightInterface.jar:token.jar:tokenInterface.jar\
 	    -Djava.security.policy=security.policy\
 	    client.ConnectingClient ${n}
 
