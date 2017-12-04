@@ -53,11 +53,16 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
     @Override
     public void request(int remoteID, int seq) throws RemoteException {
         System.out.println("Received request : (" + remoteID +","+ seq +")");
+        if(remoteID == id && bearer && state.equals(COLORS[0])){
+            if(tokenInterface.getOneLN(id, token)<RN[id]){
+                inOutCriticalSection();
+            }
+        }
         if(RN[remoteID]<seq){
             System.out.println("The request of the remote process is accepted");
             RN[remoteID] = seq;
             if(bearer){
-                System.out.println("I have the bearer");
+                System.out.println("I have the token");
             }
             if(bearer && state.equals(COLORS[0])){
                 tokenInterface.print(token);
@@ -66,6 +71,7 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
                 giveToken();
             } else if (bearer && state.equals(COLORS[2])) {
                 System.out.println("I am in critical section");
+                mapNodeClient.get(remoteID).waitToken();
             }
         } else {
             System.out.println("The request of the process is an outdated request");
@@ -156,8 +162,12 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
         System.out.println("--------------I go out of my critical section---------------");
         state = COLORS[0];
         print();
-        System.out.println(tokenInterface.getOneLN(id, token));
         token = tokenInterface.incrementLN(id, token);
+        for(int i=0; i<n; i++){
+            if(RN[i] == tokenInterface.getOneLN(i,token)){
+                tokenInterface.addQueue(i, token);
+            }
+        }
         System.out.println("I incremented the token's LN");
         tokenInterface.print(token);
         System.out.println("I asked the token to print itself");
@@ -172,7 +182,7 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
         Integer nextNode = tokenInterface.getFirstQueue(this.token);
         System.out.println("In giveToken function : " + nextNode);
         tokenInterface.print(token);
-        if(nextNode != null) {
+        if(nextNode != -1) {
             this.token = tokenInterface.removeFirstQueue(this.token);
             mapNodeClient.get(nextNode).takeToken(this.token);
             this.token = null;
@@ -196,12 +206,10 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
             TrafficLightInterface node = new trafficLightServerClient.TrafficLightServerClient(id, name, n, bearer);
             Naming.rebind(name, node);
             System.out.println(name +" bound.");
-
-            TokenInterface interfaceToken = null;
+            TokenInterface interfaceToken = (TokenInterface) Naming.lookup("token");
             Token token = null;
             if(bearer){
                 System.out.println("je veux me connecter au token parce que j'ai le bearer");
-                interfaceToken = (TokenInterface) Naming.lookup("token");
                 token = new Token(n);
             }
 
@@ -235,14 +243,12 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
                         } catch (RemoteException e) {
                             e.printStackTrace();
                         }
-                    }
-                }
-                if(bearer){
-                    try {
-
-                        inOutCriticalSection();
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
+                    }else{
+                        try {
+                            request(id,RN[id]);
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }

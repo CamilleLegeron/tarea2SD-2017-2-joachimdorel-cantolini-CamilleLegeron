@@ -37,7 +37,12 @@ public class Token implements TokenTasks<Token>, Serializable{
 
     public int getOneLN(int i) { return LN[i]; }
 
-    public int getFirstQueue() {return queue.peek(); }
+    public int getFirstQueue() {
+        if(queue.isEmpty()){
+            return-1;
+        }
+        return queue.peek();
+    }
 
     public void print() {
         System.out.println("");
