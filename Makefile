@@ -19,7 +19,7 @@ tokenEngine:
 	rm -f out/tokenEngine/*.java
 
 trafficLightInterface:
-	cd out && javac token.jar trafficLightInterface/*.java
+	cd out && javac -cp token.jar trafficLightInterface/*.java
 	cd out && jar cvf trafficLightInterface.jar trafficLightInterface/*.class
 	rm -rf out/trafficLightInterface
 
@@ -32,12 +32,12 @@ client:
 	rm -f out/client/*.java
 
 run-rmiregistry:
-	CLASSPATH=out/trafficLightInterface.jar rmiregistry
+	CLASSPATH=out/trafficLightInterface.jar:out/tokenInterface.jar:out/token.jar rmiregistry
 
 
 
 run-trafficLightServerClient:
-	cd out && java -cp .:trafficLightInterface.jar\
+	cd out && java -cp .:tokenInterface.jar:token.jar:trafficLightInterface.jar\
 	    -Djava.security.policy=security.policy\
 	    trafficLightServerClient.TrafficLightServerClient ${id} ${n} ${initialDelay} ${bearer}
 

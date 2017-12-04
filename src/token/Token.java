@@ -1,10 +1,13 @@
 package token;
 
+import tokenInterface.TokenTasks;
+
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.Queue;
 
 
-public class Token {
+public class Token implements TokenTasks, Serializable{
     private int[] LN;
     private Queue<Integer> queue;
 //    private final static Token token = new Token(5);

@@ -24,7 +24,7 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
     private ArrayList<TrafficLightInterface> listNodeClient = new ArrayList<TrafficLightInterface>();
     private String state;
     private Boolean hasTheToken;
-    private Token token;
+    //private Token token;
     private int RN[];
 
     public TrafficLightServerClient(int id, String name, int n, boolean bearer) throws RemoteException {
