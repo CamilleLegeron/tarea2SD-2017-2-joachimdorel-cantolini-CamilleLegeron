@@ -18,31 +18,31 @@ public class TokenEngine extends UnicastRemoteObject implements TokenInterface{
 
     @Override
     public void incrementLN(int i, TokenTasks task) throws RemoteException {
-        System.out.println("remote kill incrementLN");
+        System.out.println("remote incrementLN");
         task.incrementLN(i);
     }
 
     @Override
     public void addQueue(int process, TokenTasks task) throws RemoteException  {
-        System.out.println("remote kill addQueue");
+        System.out.println("remote addQueue");
         task.addQueue(process);
     }
 
     @Override
     public void removeFirstQueue(TokenTasks task) throws RemoteException {
-        System.out.println("remote kill removeLastQueue");
+        System.out.println("remote removeLastQueue");
         task.removeFirstQueue();
     }
 
     @Override
     public int getOneLN(int i, TokenTasks task) throws RemoteException {
-        System.out.println("remote kill getOneLN");
+        System.out.println("remote getOneLN");
         return task.getOneLN(i);
     }
 
     @Override
-    public int getFirstQueue(TokenTasks task) throws RemoteException {
-        System.out.println("remote kill getFirstQueue");
+    public Integer getFirstQueue(TokenTasks task) throws RemoteException {
+        System.out.println("remote getFirstQueue");
         return task.getFirstQueue();
     }
 

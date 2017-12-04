@@ -17,5 +17,5 @@ public interface TokenInterface extends Remote {
 
     int getOneLN(int i, TokenTasks task) throws RemoteException;
 
-    int getFirstQueue(TokenTasks task) throws  RemoteException;
+    Integer getFirstQueue(TokenTasks task) throws  RemoteException;
 }

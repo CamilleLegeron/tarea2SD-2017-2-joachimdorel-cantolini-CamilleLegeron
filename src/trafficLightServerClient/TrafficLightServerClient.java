@@ -4,12 +4,16 @@ import token.Token;
 import tokenInterface.TokenInterface;
 import trafficLightInterface.TrafficLightInterface;
 
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 public class TrafficLightServerClient extends UnicastRemoteObject implements TrafficLightInterface{
@@ -21,10 +25,11 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
     private int id;
     private String name;
     private int n;
-    private ArrayList<TrafficLightInterface> listNodeClient = new ArrayList<TrafficLightInterface>();
+    private HashMap<Integer, TrafficLightInterface> mapNodeClient = new HashMap<Integer, TrafficLightInterface>();
     private String state;
-    private Boolean hasTheToken;
-    //private Token token;
+    private Boolean bearer;
+    private Token token;
+    private TokenInterface tokenInterface;
     private int RN[];
 
     public TrafficLightServerClient(int id, String name, int n, boolean bearer) throws RemoteException {
@@ -32,7 +37,7 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
         this.id = id;
         this.name = name;
         state = COLORS[0];
-        hasTheToken = bearer;
+        this.bearer = bearer;
         this.n = n;
         RN = new int[n];
         for(int i=0; i<n;i++){
@@ -41,21 +46,27 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
     }
 
     /**
-     * Method that register a remote process request
+     * Method that registers a remote process request
      * @param remoteID : id of the remote process
      * @param seq : number of the sequence
      */
     @Override
     public void request(int remoteID, int seq) throws RemoteException {
+        System.out.println("Received request : (" + remoteID +","+ seq +")");
         if(RN[remoteID]<seq){
-            System.out.println("The request of the process " + remoteID + "is accepted");
+            System.out.println("The request of the remote process is accepted");
             RN[remoteID] = seq;
-            if(hasTheToken && state.equals(COLORS[0])){
-                //TODO add to queue of the token
-                //TODO call function that gave the
+            if(bearer){
+                System.out.println("I have the bearer");
+            }
+            if(bearer && state.equals(COLORS[0])){
+                tokenInterface.addQueue(remoteID, token);
+                giveToken();
+            } else if (bearer && state.equals(COLORS[2])) {
+                System.out.println("I am in critical section");
             }
         } else {
-            System.out.println("The request of the process " + remoteID + "is an outdated request");
+            System.out.println("The request of the process is an outdated request");
         }
     }
 
@@ -66,7 +77,8 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
     @Override
     public void waitToken() throws RemoteException {
         System.out.println("remote waitToken call");
-        //TODO
+        state = COLORS[1];
+        print();
     }
 
 
@@ -77,7 +89,9 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
     @Override
     public void takeToken(Token token) throws RemoteException {
         System.out.println("remote takeToken call");
-        //TODO
+        this.token = token;
+        bearer = true;
+        inOutCriticalSection();
     }
 
     /**
@@ -102,7 +116,15 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
             }
         }
         System.out.println("-   -");
-        System.out.println();
+        System.out.print("RN = [ ");
+        for (int i=0;i<n;i++){
+            System.out.print(" "+ RN[i]+ " ");
+        }
+        System.out.println(" ]");
+        if(bearer){
+            System.out.println("I have the token");
+        }
+        System.out.println("");
     }
 
     /**
@@ -113,7 +135,7 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
         for(int i=0;i<n;i++){
             if(i!=id){
                 try {
-                    listNodeClient.add((TrafficLightInterface) Naming.lookup("node"+i));
+                    mapNodeClient.put(i, (TrafficLightInterface) Naming.lookup("node"+i));
                     System.out.println("Node "+id+" connected to the client node"+i);
                 } catch (NotBoundException | MalformedURLException | RemoteException e) {
                     e.printStackTrace();
@@ -121,6 +143,35 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
             }
         }
     }
+
+    /**
+     * Function that goes in and out the Critical Section
+     */
+    private void inOutCriticalSection() throws RemoteException {
+        System.out.println("------I have the token, I enter in my critical section------");
+        state = COLORS[2];
+        print();
+        System.out.println("--------------I go out of my critical section---------------");
+        state = COLORS[0];
+        print();
+        tokenInterface.incrementLN(id, token);
+        giveToken();
+    }
+
+    /**
+     * Function that gives the token to the first node in the queue and set its own token to null
+     * In this way, we take take of the mutual exclusion
+     */
+    private void giveToken() throws  RemoteException {
+        Integer nextNode = tokenInterface.getFirstQueue(this.token);
+        if(nextNode != null) {
+            tokenInterface.removeFirstQueue(this.token);
+            mapNodeClient.get(nextNode).takeToken(this.token);
+            this.token = null;
+            bearer = false;
+        }
+    }
+
 
     public static void main(String args[]){
         if (System.getSecurityManager() == null) {
@@ -138,34 +189,57 @@ public class TrafficLightServerClient extends UnicastRemoteObject implements Tra
             Naming.rebind(name, node);
             System.out.println(name +" bound.");
 
-            TokenInterface interfaceToken;
+            TokenInterface interfaceToken = null;
+            Token token = null;
             if(bearer){
                 System.out.println("je veux me connecter au token parce que j'ai le bearer");
                 interfaceToken = (TokenInterface) Naming.lookup("token");
-                Token token = new Token(n);
+                token = new Token(n);
             }
 
-            //TODO to test !!!
-            TimeUnit.MILLISECONDS.sleep(initialDelay);
-            for(int i = 0; i<n; i++){
-                //TODO : RN[id]++; appeler la fonction request(id, RN[id]) pour tous les noeuds de la liste listNodeClient
-                //TODO : problem !!!!!!! d'ici on peut pas accéder à listNodeClient parce qu'on est dans le main
-                //TODO : Et node peut accéder que aux fonctions qui sont accessibles dans l'interface ...
-            }
-
-            //TODO TO TEST!!
-            TrafficLightServerClient nodeTest = (TrafficLightServerClient) node;
-            nodeTest.test();
 
 
-        } catch (RemoteException | MalformedURLException | NotBoundException | InterruptedException e) {
+            TrafficLightServerClient nodeServer = (TrafficLightServerClient) node;
+            nodeServer.suzukiKasami(initialDelay, interfaceToken, token);
+
+
+        } catch (RemoteException | MalformedURLException | NotBoundException e) {
             e.printStackTrace();
         }
     }
 
-    private void test(){
-        System.out.println("Test");
-        System.out.println("Print the id "+ id);
-        //TODO lancer l'algo de Suzuki Kasimi ici (attendre le initialDelay, lancer la requete etc.)
+    private void suzukiKasami(int initialDelay, TokenInterface tokenInterface, Token token) throws  RemoteException{
+        System.out.println();
+        System.out.println("Beginning of the Suzuki Kasami function");
+
+        this.tokenInterface = tokenInterface;
+        this.token = token;
+
+        Timer timer = new Timer(initialDelay, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                RN[id]++;
+                System.out.println("Send request to all other traffic lights : (" + id + "," + RN[id] + ")");
+                for(int i = 0; i<n; i++){
+                    if(i != id){
+                        try {
+                            mapNodeClient.get(i).request(id, RN[id]);
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                if(bearer){
+                    try {
+                        inOutCriticalSection();
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+        timer.setRepeats(false); // Only execute once
+        timer.start(); // Go go go!
+        System.out.println("Waiting the initial delay ("+initialDelay+"ms) before asking for the token...");
     }
 }

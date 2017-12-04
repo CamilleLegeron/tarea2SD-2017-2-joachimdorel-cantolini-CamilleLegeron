@@ -8,5 +8,5 @@ public interface TokenTasks {
     void addQueue(int process);
     void removeFirstQueue();
     int getOneLN(int i);
-    int getFirstQueue();
+    Integer getFirstQueue();
 }
