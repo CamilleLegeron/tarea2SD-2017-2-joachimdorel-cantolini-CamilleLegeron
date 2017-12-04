@@ -44,9 +44,13 @@ make run-client n={n}
 
 The project is centered around the use of RMI. In order to implement the Suzuki-Kasami
 algorithm, we used the way RMI interacts between clients and servers. Each semaphore
-corresponds in our code as both a Client and a Server, and the interaction between
-the semaphores is done through the interface the all share. Locally, they only manage their
-local RN queue, while they exchange between themselves the token and then update his
-list LN, list who correspond to the next semaphore entering into a critic session.
+corresponds in our code as both a Client and a Server. It is a Client of the n-1 other remote semaphores, each one also being its Client. 
+<br> The interaction between the semaphores is done through the interface they all share. Locally, they manage their
+local RN list, while they exchange between themselves the token and then update its LN list, 
+list which corresponds to the number of time each one have entered in critical section, and the queue
+which corresponds to the next semaphores waiting to enter into a critic session.
+
+To understand better the architecture of Suzuki Kasami, we followed the architecture in the following video :
+ https://www.youtube.com/watch?v=aWne_qIR2XI 
 
 [^2]: In our project, a semaphore corresponds to a TrafficLightServerClient, or more simply to a traffic light. This change was made to have a better understanding of the logic of a semaphore.
