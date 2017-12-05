@@ -35,7 +35,6 @@ run-rmiregistry:
 	CLASSPATH=out/trafficLightInterface.jar:out/tokenInterface.jar:out/token.jar rmiregistry
 
 
-
 run-trafficLightServerClient:
 	cd out && java -cp .:tokenInterface.jar:token.jar:trafficLightInterface.jar\
 	    -Djava.security.policy=security.policy\
