@@ -1,6 +1,5 @@
 package client;
 
-import trafficLight.TrafficLight;
 import trafficLightInterface.TrafficLightInterface;
 
 import java.net.MalformedURLException;
@@ -9,7 +8,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
 /**
- * Created by user on 30/11/2017.
+ * Client which allows all TrafficLight Server connect itself with all others TrafficLight Server as a Client
  */
 public class ConnectingClient {
     public static void main(String[] args) {
@@ -20,12 +19,9 @@ public class ConnectingClient {
         try {
             TrafficLightInterface nodeInt;
             for(int i=0;i<n;i++){
-                System.out.println("je veux connecter node"+i);
                 nodeInt = (TrafficLightInterface) Naming.lookup("node"+i);
-                TrafficLight tl = new TrafficLight("0",1);
-                nodeInt.connectTrafficLightsClients(i,n);
+                nodeInt.connectTrafficLightsClients();
             }
-
 
         } catch (NotBoundException | MalformedURLException | RemoteException e) {
             e.printStackTrace();

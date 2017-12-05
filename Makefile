@@ -1,4 +1,4 @@
-all: out tokenInterface token tokenEngine trafficLightInterface trafficLight trafficLightServerClient client
+all: out tokenInterface token tokenEngine trafficLightInterface trafficLightServerClient client
 
 out:
 	mkdir out
@@ -19,42 +19,34 @@ tokenEngine:
 	rm -f out/tokenEngine/*.java
 
 trafficLightInterface:
-	cd out && javac trafficLightInterface/*.java
+	cd out && javac -cp token.jar trafficLightInterface/*.java
 	cd out && jar cvf trafficLightInterface.jar trafficLightInterface/*.class
 	rm -rf out/trafficLightInterface
-
-trafficLight:
-	cd out && javac -cp trafficLightInterface.jar trafficLight/*.java
-	cd out && jar cvf trafficLight.jar trafficLight/*.class
-	rm -rf out/trafficLight
 
 trafficLightServerClient:
 	cd out && javac -cp tokenInterface.jar:token.jar:trafficLightInterface.jar trafficLightServerClient/*.java
 	rm -f out/trafficLightServerClient/*.java
 
 client:
-	cd out && javac -cp trafficLightInterface.jar:trafficLight.jar client/*.java
+	cd out && javac -cp trafficLightInterface.jar client/*.java
 	rm -f out/client/*.java
 
 run-rmiregistry:
-	CLASSPATH=out/trafficLightInterface.jar rmiregistry
-
+	CLASSPATH=out/trafficLightInterface.jar:out/tokenInterface.jar:out/token.jar rmiregistry
 
 
 run-trafficLightServerClient:
-	cd out && java -cp .:trafficLightInterface.jar:trafficLight.jar\
+	cd out && java -cp .:tokenInterface.jar:token.jar:trafficLightInterface.jar\
 	    -Djava.security.policy=security.policy\
-	    trafficLightServerClient.TrafficLightServerClient ${id} ${n} ${bearer}
+	    trafficLightServerClient.TrafficLightServerClient ${id} ${n} ${initialDelay} ${bearer}
 
 run-tokenEngine:
 	cd out && java -cp .:tokenInterface.jar:token.jar\
 	    -Djava.security.policy=security.policy\
 	    tokenEngine.TokenEngine
 
-
-
 run-client:
-	cd out && java -cp .:trafficLightInterface.jar:trafficLight.jar\
+	cd out && java -cp .:trafficLightInterface.jar:token.jar:tokenInterface.jar\
 	    -Djava.security.policy=security.policy\
 	    client.ConnectingClient ${n}
 
